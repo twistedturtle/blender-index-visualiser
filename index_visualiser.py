@@ -2,7 +2,7 @@
 bl_info = {
 	'name': 'Index Visualiser (BMesh)',
 	'author': 'twistedturtle',
-	'version': (0, 0, 1),
+	'version': (0, 1, 0),
 	'blender': (3, 5, 1),
 	'location': 'View3D > Overlays',
 	'warning': '',
