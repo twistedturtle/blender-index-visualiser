@@ -10,7 +10,7 @@ Two keyboard shortcuts are defined by default.
 F5 - Reload scripts <br>
 F6 - Toggle labels
 
-If you reload scripts normally whilst the labels are displayed, then you'll lose the reference to the draw callback. This means you won't be able to turn the labels off until you retart blender. 
+If you reload scripts normally whilst the labels are displayed, then you'll lose the reference to the draw callback. This means you won't be able to turn the labels off until you restart blender. 
 
 The custom reload scripts operator (F5) simply removes the callback, then reloads scripts using `bpy.ops.script.reload()` (the normal method) and should it be necessary re-adds the callback afterwards. 
 
