@@ -16,7 +16,7 @@ The custom reload scripts operator (F5) simply removes the callback, then reload
 
 ### Install
 
-Copy `index-visualiser.py` to the blender addon directory, or use the install button in the preferences.
+Download the .zip file from the `Code` button above. Use the Install button in Blender's addon preferences.
 
 Arch based distros -  An AUR PKGBUILD may be forthcoming.
 
