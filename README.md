@@ -7,10 +7,12 @@ The selection mode determines which indices are displayed. The other controls ar
 
 Two keyboard shortcuts are defined by default.
 
-F5 - Reload scripts* <br>
-F6 - Toggles display of index labels
+F5 - Reload scripts <br>
+F6 - Toggle labels
 
-*If you reload scripts normally then you'll lose the reference to the draw callback should it be running. This means you won't be able to turn it off.
+If you reload scripts normally whilst the labels are displayed, then you'll lose the reference to the draw callback. This means you won't be able to turn the labels off until you retart blender. 
+
+The custom reload scripts operator (F5) simply removes the callback, then reloads scripts using `bpy.ops.script.reload()` (the normal method) and should it be necessary re-adds the callback afterwards. 
 
 ### Install
 
