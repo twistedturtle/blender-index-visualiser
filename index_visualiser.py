@@ -99,12 +99,11 @@ def draw_callback_px(context):
 
 
 class ToggleIndices(bpy.types.Operator):
-	"""Toggle display of idex labels, for use with keymap"""
+	"""Toggle display of index labels, for use with keymap"""
 	bl_idname = "indexvis.toggleindices"
 	bl_label = "Toggle show indices"
 
 	def execute(self, context):
-		print("toggle indices")
 		if context.scene.indexvis.show_indices:
 			context.scene.indexvis.show_indices = False
 		else:
@@ -164,7 +163,7 @@ def draw_overlay(self, context):
 
 
 class IndexVisSettings(bpy.types.PropertyGroup):
-	text_size: bpy.props.IntProperty(name="Text Size", default=13, min=8, max=20)
+	text_size: bpy.props.IntProperty(name="Text Size", default=10, min=8, max=20)
 
 	show_indices:  bpy.props.BoolProperty(name="Indices", default=False, update=toggleDrawHandler)
 
@@ -229,7 +228,7 @@ def register():
 
 def unregister():
 	keymaps.removeAll()
-	
+
 	try:
 		bpy.types.SpaceView3D.draw_handler_remove(IndexVisSettings.dh, 'WINDOW')
 	except:
