@@ -1,18 +1,19 @@
 # Index Visualiser
-Show the indices of mesh components in a readable manner. Works with verts, edges and faces.
+Show the indices of verts, edges and faces in a readable manner.
 
-The selection mode determines which indices are displayed. The other controls are found in the Overlay menu when in EDIT mode, under the Dev header. 
+There is a similar feature built into blender, but sometimes it's difficult to read the labels. The only control is font colour.
+
+This addon replicates this feature but adds in a background to make it more legible. You can control the font/background colours, and the font size (and of course turn it on/off).
+
+A keyboard shortcut is defined for convenience, this can be changed within blender.
+
+F6 - Toggle labels
+
+Like the inbuilt functionality, the selection mode determines which indices are displayed. The other controls are found in the Overlay menu when in EDIT mode, under the Dev header.
 
 <img src="pics/screenshot.png" width="600">
 
-Two keyboard shortcuts are defined by default.
-
-F5 - Reload scripts <br>
-F6 - Toggle labels
-
-If you reload scripts normally whilst the labels are displayed, then you'll lose the reference to the draw callback. This means you won't be able to turn the labels off until you restart blender. 
-
-The custom reload scripts operator (F5) simply removes the callback, then reloads scripts using `bpy.ops.script.reload()` (the normal method) and should it be necessary re-adds the callback. 
+If you want to change the defaults then create a new file, change the values and save it as a new startup file (however Indices always defaults to off). Or you can modify `index-visualiser.py`.
 
 ### Install
 
