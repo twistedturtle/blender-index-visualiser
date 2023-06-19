@@ -96,92 +96,64 @@ def draw_callback_px(context):
 		blf.draw(font_id, index)
 
 
-
-
 class ToggleIndices(bpy.types.Operator):
 	"""Toggle display of index labels, for use with keymap"""
 	bl_idname = "indexvis.toggleindices"
 	bl_label = "Toggle show indices"
 
 	def execute(self, context):
-		if context.scene.indexvis.show_indices:
-			context.scene.indexvis.show_indices = False
+		if context.window_manager.indexvis.show_indices:
+			context.window_manager.indexvis.show_indices = False
 		else:
-			context.scene.indexvis.show_indices = True
+			context.window_manager.indexvis.show_indices = True
 
 		return {"FINISHED"}
 
-
-class ReloadScripts(bpy.types.Operator):
-	"""Reload scripts even when the modal operator is running."""
-
-	bl_idname = "indexvis.reloadscripts"
-	bl_label = "Reload Scripts"
-
-	def execute(self, context):
-		try:
-			bpy.types.SpaceView3D.draw_handler_remove(IndexVisSettings.dh, 'WINDOW')
-		except:
-			pass
-
-		bpy.ops.script.reload()
-
-		if not bpy.app.timers.is_registered(reloadHandler):
-			bpy.app.timers.register(reloadHandler, first_interval=0.001)
-
-		return {"FINISHED"}
-
-def reloadHandler():
-	if bpy.context.scene.indexvis.show_indices:
-		IndexVisSettings.dh = bpy.types.SpaceView3D.draw_handler_add(
-					draw_callback_px, (bpy.context,), 'WINDOW', 'POST_PIXEL')
 
 def toggleDrawHandler(self, context):
-	if context.scene.indexvis.show_indices:
-		IndexVisSettings.dh = bpy.types.SpaceView3D.draw_handler_add(
-					draw_callback_px, (context,), 'WINDOW', 'POST_PIXEL')
+	dns = bpy.app.driver_namespace
+	if context.window_manager.indexvis.show_indices:
+		dns['draw_indices'] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, (context,), 'WINDOW', 'POST_PIXEL')
 	else:
+		handler = bpy.app.driver_namespace.get('draw_indices')
 		try:
-			bpy.types.SpaceView3D.draw_handler_remove(IndexVisSettings.dh, 'WINDOW')
+			bpy.types.SpaceView3D.draw_handler_remove(handler, 'WINDOW')
+			del bpy.app.driver_namespace["draw_indices"]
 		except:
 			pass
-
-
 
 def draw_overlay(self, context):
 	layout = self.layout
 	scene = context.scene
+	wm = context.window_manager
 
 	layout.label(text="Dev")
-	layout.prop(scene.indexvis, 'show_indices')
-	layout.prop(scene.indexvis, 'text_size')
-	layout.prop(scene.indexvis, 'fg_color')
-	layout.prop(scene.indexvis, 'bg_color')
-	layout.operator(ReloadScripts.bl_idname, text="Reload Scripts")
-
+	layout.prop(wm.indexvis, 'show_indices')
+	layout.prop(scene.indexvis, 'text_size')#, text="Font Size")
+	layout.prop(scene.indexvis, 'fg_color')#, text="Font Colour")
+	layout.prop(scene.indexvis, 'bg_color')#, text="Background Colour")
 
 
 
 class IndexVisSettings(bpy.types.PropertyGroup):
-	text_size: bpy.props.IntProperty(name="Text Size", default=10, min=8, max=20)
-
-	show_indices:  bpy.props.BoolProperty(name="Indices", default=False, update=toggleDrawHandler)
-
+	text_size: bpy.props.IntProperty(name="Font Size", default=10, min=8, max=20)
 
 	bg_color: bpy.props.FloatVectorProperty(
-             name = "BG Color Picker",
+             name = "Background Colour",
              subtype = "COLOR",
              default = (0.0, 0.0, 0.0, 0.6),
              size = 4
              )
 	fg_color: bpy.props.FloatVectorProperty(
-             name = "FG Color Picker",
+             name = "Font Colour",
              subtype = "COLOR",
              default = (0.0, 1.0, 0.0, 1.0),
              size = 4
              )
 
-	draw_handler: bpy.props.PointerProperty(type=bpy.types.Object)
+
+class IndexVisSettings2(bpy.types.PropertyGroup):
+	show_indices:  bpy.props.BoolProperty(name="Indices", default=False, update=toggleDrawHandler)
 
 
 
@@ -210,36 +182,33 @@ class Keymaps:
 
 keymaps = Keymaps(space_type="VIEW_3D")
 
-def register():
-	IndexVisSettings.dh = None
-	IndexVisSettings.show = False
 
+
+def register():
 	bpy.types.VIEW3D_PT_overlay.append(draw_overlay)
 	bpy.utils.register_class(IndexVisSettings)
-	bpy.utils.register_class(ReloadScripts)
+	bpy.utils.register_class(IndexVisSettings2)
 	bpy.utils.register_class(ToggleIndices)
 
 	bpy.types.Scene.indexvis = bpy.props.PointerProperty(type=IndexVisSettings)
+	bpy.types.WindowManager.indexvis = bpy.props.PointerProperty(type=IndexVisSettings2)
 
 	keymaps.add(ToggleIndices, "F6", "PRESS")
-	keymaps.add(ReloadScripts, "F5", "PRESS")
 
 
 
 def unregister():
 	keymaps.removeAll()
 
-	try:
-		bpy.types.SpaceView3D.draw_handler_remove(IndexVisSettings.dh, 'WINDOW')
-	except:
-		pass
-
+	del bpy.types.WindowManager.indexvis
 	del bpy.types.Scene.indexvis
 
+
 	bpy.utils.unregister_class(ToggleIndices)
-	bpy.utils.unregister_class(ReloadScripts)
+	bpy.utils.unregister_class(IndexVisSettings2)
 	bpy.utils.unregister_class(IndexVisSettings)
 	bpy.types.VIEW3D_PT_overlay.remove(draw_overlay)
+
 
 
 if __name__ == "__main__":
