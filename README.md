@@ -9,7 +9,7 @@ A keyboard shortcut is defined for convenience, this can be changed within blend
 
 F6 - Toggle labels
 
-Like the inbuilt functionality, the selection mode determines which indices are displayed. The other controls are found in the Overlay menu when in EDIT mode, under the Dev header.
+Like the inbuilt functionality, the selection mode determines which indices are displayed. The other controls are found in the Overlay menu when in EDIT mode.
 
 <img src="pics/screenshot.png" width="600">
 

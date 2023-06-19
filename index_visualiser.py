@@ -127,7 +127,7 @@ def draw_overlay(self, context):
 	scene = context.scene
 	wm = context.window_manager
 
-	layout.label(text="Dev")
+	layout.label(text="Index Visualiser")
 	layout.prop(wm.indexvis, 'show_indices')
 	layout.prop(scene.indexvis, 'text_size')#, text="Font Size")
 	layout.prop(scene.indexvis, 'fg_color')#, text="Font Colour")
