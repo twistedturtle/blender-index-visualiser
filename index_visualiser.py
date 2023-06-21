@@ -2,7 +2,7 @@
 bl_info = {
 	'name': 'Index Visualiser (BMesh)',
 	'author': 'twistedturtle',
-	'version': (0, 2, 0),
+	'version': (0, 2, 1),
 	'blender': (3, 5, 1),
 	'location': 'View3D > Overlays',
 	'warning': '',
@@ -18,8 +18,15 @@ import blf
 import gpu
 import bmesh
 import mathutils as mu
+
 from gpu_extras.batch import batch_for_shader
 from bpy_extras.view3d_utils import location_3d_to_region_2d as loc3d2d
+
+
+font_info = {
+	"font_id": 0,
+	"handler": None,
+}
 
 
 def draw_callback_px(context):
@@ -32,12 +39,14 @@ def draw_callback_px(context):
 	obj = context.active_object
 	mw = obj.matrix_world
 
+
+	font_id = font_info["font_id"]
 	text_height = context.scene.indexvis.text_size
-	blf.size(0, text_height, 72)
+	blf.size(font_id, text_height, 72)
 	me = obj.data
 	bm = bmesh.from_edit_mesh(me)
 
-	font_id = 0  # handle other fonts?
+
 	bgcolor = context.scene.indexvis.bg_color
 	fgcolor = context.scene.indexvis.fg_color
 
@@ -49,14 +58,19 @@ def draw_callback_px(context):
 
 	selection_modes = bpy.context.tool_settings.mesh_select_mode
 
+	tw, th = blf.dimensions(font_id, "0")
+
+	# Center for edges and faces, offset slightly for verts
 	points = []
 	if selection_modes[0]:
+		yoff = 2.5
 		for v in bm.verts:
 			if v.select:
 				vco = mw @ v.co
 				points.append((vco, f"{v.index}"))
 
 	elif selection_modes[1]:
+		yoff = -th/2
 		for e in bm.edges:
 			if e.select:
 				vco = e.verts[0].co.lerp(e.verts[1].co, 0.5)
@@ -64,6 +78,7 @@ def draw_callback_px(context):
 				points.append((vco, f"{e.index}"))
 
 	elif selection_modes[2]:
+		yoff = -th/2
 		for f in bm.faces:
 			if f.select:
 				n = len(f.verts)
@@ -71,28 +86,31 @@ def draw_callback_px(context):
 				vco = mw @ vco
 				points.append((vco, f"{f.index}"))
 
-	xoff = 5
-	yoff = 2.5
+
+
+	# TODO: If labels exist in the same place in the plane
+	# 	eg when viewing a cube from the front
+	# 	make sure the label the user sees is the one closest to them
 	border = 2.5
 	b2 = 5
 	for vco, index in points:
 		x, y = loc3d2d(region, rv3d, vco)
-		tw, th = blf.dimensions(0, index)
+		tw, th = blf.dimensions(font_id, index)
 
+		twh = tw / 2
 		vertices = (
-			(x+xoff, y+yoff+th+b2),
-			(x+xoff+tw+b2, y+yoff+th+b2),
-			(x+xoff, y+yoff),
-			(x+xoff+tw+b2, y+yoff)
+			(x-twh,    y+yoff+th+b2),
+			(x+twh+b2, y+yoff+th+b2),
+			(x-twh,    y+yoff),
+			(x+twh+b2, y+yoff)
 		)
-
 		batch = batch_for_shader(shader, 'TRIS', {"pos": vertices}, indices=indices)
 
 		shader.bind()
 		batch.draw(shader)
 
 		# Write the index
-		blf.position(font_id, x+xoff+border, y+yoff+border, 0)
+		blf.position(font_id, x-twh+border, y+yoff+border, 0)
 		blf.draw(font_id, index)
 
 
@@ -122,6 +140,7 @@ def toggleDrawHandler(self, context):
 		except:
 			pass
 
+
 def draw_overlay(self, context):
 	layout = self.layout
 	scene = context.scene
@@ -129,27 +148,27 @@ def draw_overlay(self, context):
 
 	layout.label(text="Index Visualiser")
 	layout.prop(wm.indexvis, 'show_indices')
-	layout.prop(scene.indexvis, 'text_size')#, text="Font Size")
-	layout.prop(scene.indexvis, 'fg_color')#, text="Font Colour")
-	layout.prop(scene.indexvis, 'bg_color')#, text="Background Colour")
+	layout.prop(scene.indexvis, 'text_size')
+	layout.prop(scene.indexvis, 'fg_color')
+	layout.prop(scene.indexvis, 'bg_color')
 
 
 
 class IndexVisSettings(bpy.types.PropertyGroup):
-	text_size: bpy.props.IntProperty(name="Font Size", default=10, min=8, max=20)
+	text_size: bpy.props.IntProperty(name="Font Size", default=12, min=5, max=30)
 
 	bg_color: bpy.props.FloatVectorProperty(
-             name = "Background Colour",
-             subtype = "COLOR",
-             default = (0.0, 0.0, 0.0, 0.6),
-             size = 4
-             )
+			 name = "Background Colour",
+			 subtype = "COLOR",
+			 default = (0.0, 0.0, 0.0, 0.6),
+			 size = 4
+			 )
 	fg_color: bpy.props.FloatVectorProperty(
-             name = "Font Colour",
-             subtype = "COLOR",
-             default = (0.0, 1.0, 0.0, 1.0),
-             size = 4
-             )
+			 name = "Font Colour",
+			 subtype = "COLOR",
+			 default = (0.0, 1.0, 0.0, 1.0),
+			 size = 4
+			 )
 
 
 class IndexVisSettings2(bpy.types.PropertyGroup):
@@ -166,7 +185,7 @@ class Keymaps:
 
 	def add(self, op, kmi_type, value, kmi_any=False, ctrl=False,  shift=False, alt=False, oskey=False, key_modifier="NONE", direction="ANY", repeat=False, head=False):
 
-	 	# Add a hotkey
+		# Add a hotkey
 		if self.km:
 			idname = op.bl_idname
 			kmi = self.km.keymap_items.new(idname, kmi_type, value, any=kmi_any, ctrl=ctrl, shift=shift, alt=alt, oskey=oskey, key_modifier=key_modifier, direction=direction, repeat=repeat, head=head)
@@ -194,8 +213,6 @@ def register():
 	bpy.types.WindowManager.indexvis = bpy.props.PointerProperty(type=IndexVisSettings2)
 
 	keymaps.add(ToggleIndices, "F6", "PRESS")
-
-
 
 def unregister():
 	keymaps.removeAll()
