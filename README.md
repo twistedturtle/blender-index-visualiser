@@ -4,6 +4,8 @@
 
 # Moved to gitlab
 
+### https://gitlab.com/blender_addons_tt/blender-index-visualiser
+
 
 Show the indices of verts, edges and faces in a readable manner.
 
