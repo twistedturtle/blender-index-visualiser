@@ -1,12 +1,6 @@
 
 # Index Visualiser
 
-
-# Moved to gitlab
-
-### https://gitlab.com/blender_addons_tt/blender-index-visualiser
-
-
 Show the indices of verts, edges and faces in a readable manner.
 
 There is a similar feature built into blender, but sometimes it's difficult to read the labels. The only control is font colour.
