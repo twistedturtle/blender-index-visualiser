@@ -28,6 +28,7 @@ font_info = {
 	"handler": None,
 }
 
+version = bpy.app.version
 
 def draw_callback_px(context):
 	'''Draw the labels'''
@@ -42,7 +43,13 @@ def draw_callback_px(context):
 
 	font_id = font_info["font_id"]
 	text_height = context.scene.indexvis.text_size
-	blf.size(font_id, text_height, 72)
+
+	# API: DPI deprecated in 3.4, removed in 4.1 or earlier
+	if (version[0] == 3 and version[1] >= 4) or version[0] > 3:
+		blf.size(font_id, text_height)
+	else:
+		blf.size(font_id, text_height, 72)
+
 	me = obj.data
 	bm = bmesh.from_edit_mesh(me)
 
@@ -51,7 +58,15 @@ def draw_callback_px(context):
 	fgcolor = context.scene.indexvis.fg_color
 
 	indices = ((0, 1, 2), (2, 1, 3))
-	shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
+
+
+	# API: options changed names in 3.4
+	if (version[0] == 3 and version[1] >= 4) or version[0] > 3:
+		shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+	else:
+		shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
+
+
 	shader.uniform_float("color", bgcolor)
 
 	blf.color(font_id, fgcolor[0], fgcolor[1], fgcolor[2], fgcolor[3])
@@ -213,6 +228,9 @@ def register():
 	bpy.types.WindowManager.indexvis = bpy.props.PointerProperty(type=IndexVisSettings2)
 
 	keymaps.add(ToggleIndices, "F6", "PRESS")
+
+
+
 
 def unregister():
 	keymaps.removeAll()
