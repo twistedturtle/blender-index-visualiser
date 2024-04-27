@@ -1,4 +1,10 @@
 
+Moved to gitlab
+
+https://gitlab.com/blender_addons_tt/blender-index-visualiser
+
+This repo has also just been updated with the latest version at this time (0.2.2). This will be the last update here.
+
 # Index Visualiser
 
 Show the indices of verts, edges and faces in a readable manner.
