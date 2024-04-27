@@ -17,12 +17,12 @@ Like the inbuilt functionality, the selection mode determines which indices are 
 
 If you want to change the defaults then create a new file, change the values and save it as a new startup file (however Indices always defaults to off). Or you can modify `index-visualiser.py`.
 
-### Install
 
-Download `index_visualiser.py`, and use the Install button in Blender's addon preferences.
+## Install
 
-Arch based distros -  An AUR PKGBUILD may be forthcoming.
+Download the [latest release](https://gitlab.com/blender_addons_tt/blender-index-visualiser/-/releases/permalink/latest), extract it, and use the Install button in Blender's addon preferences.
 
 
-### Questions/Bugs/Issues/Feature requests etc
+## Questions/Bugs/Issues/Feature requests etc
+
 If you have any questions or feedback etc, please open an issue.
